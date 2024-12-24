@@ -8,16 +8,13 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.*;
 import javax.tools.Diagnostic;
 import java.util.*;
 
 @SupportedAnnotationTypes("com.twesche.annotation.EGREntity")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
-public class ViewProcessor extends AbstractProcessor {
+public class EGRProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         // Only will get called once - This process only supports annotation com.twesche.annotation.EGREntity
@@ -69,6 +66,10 @@ public class ViewProcessor extends AbstractProcessor {
         {
             if (element instanceof final VariableElement variableElement) {
                 if (variableElement.getAnnotationsByType(EGRColumn.class).length != 0) {
+                    if (variableElement.getKind() != ElementKind.FIELD) {
+                        System.out.println("Unsupported Element Type for EGRColumn");
+                        continue;
+                    }
                     variableElements.add(variableElement);
                     System.out.println("\tVariable " + variableElement.getSimpleName() + " is annotated with " + EGRColumn.class.getName());
                 }
@@ -77,6 +78,10 @@ public class ViewProcessor extends AbstractProcessor {
 
             if (element instanceof final ExecutableElement executableElement) {
                 if (executableElement.getAnnotationsByType(EGRMethod.class).length != 0) {
+                    if (executableElement.getKind() != ElementKind.METHOD) {
+                        System.out.println("Unsupported Element Type for EGRMethod");
+                        continue;
+                    }
                     executableElements.add(executableElement);
                     System.out.println("\tMethod " + executableElement.getSimpleName() + " is annotated with " + EGRMethod.class.getName());
                 }
@@ -97,4 +102,5 @@ public class ViewProcessor extends AbstractProcessor {
             this.executableElements = executableElements;
         }
     }
+
 }

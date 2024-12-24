@@ -1,5 +1,7 @@
 package com.twesche.annotation;
 
+import com.twesche.enums.EGRFieldAccess;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,6 +13,5 @@ public @interface EGRColumn {
     boolean viewEligible() default true;
     boolean uiHideColumn() default false;
 
-    boolean canReadValue() default true;
-    boolean canWriteValue() default false;
+    EGRFieldAccess access() default EGRFieldAccess.READ_ONLY;
 }
