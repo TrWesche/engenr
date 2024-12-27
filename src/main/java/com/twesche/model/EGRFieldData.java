@@ -3,21 +3,23 @@ package com.twesche.model;
 import com.twesche.enums.EGRFieldAccess;
 
 import javax.lang.model.element.VariableElement;
+import java.io.Serializable;
+import java.util.EnumSet;
 
-public class EGRFieldData {
+public class EGRFieldData implements Serializable {
     // Element Reference
     VariableElement Element;
 
     // ==== Field Access
     // ---- Access Level
-    //      0b0000 0001 - Read Access
+    //      1 - Read Access
     //      This element is included in the view but cannot be set by the user.
     //      The controller generated will prevent an update to this column during data merge.
     //          For newly created records the value we be set to null.  For updated records the original value will be taken.
-    //      0b0000 0011 - Read Write Access
+    //      2 - Write Access
     //      This element is included in the view and can be set by the user.
     //      The controller generated will take the value applied to this element during data merge.
-    EGRFieldAccess accessLevel;
+    EnumSet<EGRFieldAccess> accessLevel;
 
     String fieldName; // Name to be assigned to the field in the view and the UI Model
     String fieldDescription; // Field description
@@ -37,11 +39,11 @@ public class EGRFieldData {
         Element = element;
     }
 
-    public EGRFieldAccess getAccessLevel() {
+    public EnumSet<EGRFieldAccess> getAccessLevel() {
         return accessLevel;
     }
 
-    public void setAccessLevel(EGRFieldAccess accessLevel) {
+    public void setAccessLevel(EnumSet<EGRFieldAccess> accessLevel) {
         this.accessLevel = accessLevel;
     }
 

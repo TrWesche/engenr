@@ -1,12 +1,14 @@
 package com.twesche.enums;
 
-public enum EGRFieldAccess {
+public enum EGRTypeAccess {
     READ(1),
-    WRITE(2);
+    CREATE(2),
+    UPDATE(4),
+    DELETE(8);
 
     private final Integer value;
 
-    EGRFieldAccess(Integer value) {
+    EGRTypeAccess(Integer value) {
         this.value = value;
     }
 

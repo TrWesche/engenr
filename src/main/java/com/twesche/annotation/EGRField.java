@@ -16,5 +16,5 @@ public @interface EGRField {
     boolean uiAddToModel() default true;
     boolean uiHide() default false;
 
-    EGRFieldAccess access() default EGRFieldAccess.READ_ONLY;
+    EGRFieldAccess[] access() default EGRFieldAccess.READ;
 }
