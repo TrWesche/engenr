@@ -1,7 +1,9 @@
 package com.twesche.processors;
 
-import com.twesche.annotation.EGRColumn;
+import com.twesche.annotation.EGRField;
 import com.twesche.annotation.EGRMethod;
+import com.twesche.enums.EGRFieldAccess;
+import com.twesche.model.EGRFieldData;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -65,13 +67,13 @@ public class EGRProcessor extends AbstractProcessor {
         for (final Element element : elements)
         {
             if (element instanceof final VariableElement variableElement) {
-                if (variableElement.getAnnotationsByType(EGRColumn.class).length != 0) {
+                if (variableElement.getAnnotationsByType(EGRField.class).length != 0) {
                     if (variableElement.getKind() != ElementKind.FIELD) {
                         System.out.println("Unsupported Element Type for EGRColumn");
                         continue;
                     }
                     variableElements.add(variableElement);
-                    System.out.println("\tVariable " + variableElement.getSimpleName() + " is annotated with " + EGRColumn.class.getName());
+                    System.out.println("\tVariable " + variableElement.getSimpleName() + " is annotated with " + EGRField.class.getName());
                 }
                 continue;
             }
@@ -82,6 +84,7 @@ public class EGRProcessor extends AbstractProcessor {
                         System.out.println("Unsupported Element Type for EGRMethod");
                         continue;
                     }
+
                     executableElements.add(executableElement);
                     System.out.println("\tMethod " + executableElement.getSimpleName() + " is annotated with " + EGRMethod.class.getName());
                 }
@@ -103,4 +106,51 @@ public class EGRProcessor extends AbstractProcessor {
         }
     }
 
+    private EGRFieldData generateFieldData(VariableElement variable, TypeElement type) {
+        // Check if field is annotated and is the proper type
+        EGRField annotation = variable.getAnnotation(EGRField.class);
+        if (annotation == null || variable.getKind() != ElementKind.FIELD || annotation.access() == EGRFieldAccess.NONE) {
+            return null;
+        }
+
+        // Begin Generation
+        EGRFieldData egrFieldData = new EGRFieldData();
+        egrFieldData.setElement(variable);
+
+        // Field Access Level
+        Set<Modifier> modifiers = variable.getModifiers();
+        if (
+            (modifiers.contains(Modifier.FINAL) || modifiers.contains(Modifier.STATIC)) &&
+            annotation.access() != EGRFieldAccess.READ_ONLY
+        ) {
+            processingEnv.getMessager().printMessage(
+                    Diagnostic.Kind.WARNING,
+                    String.format("Field '%s' of Class '%s' has been marked for EGR generation but is a static and/or final field.  Access for this field will be set to read only.",
+                            variable.getSimpleName(), type.getSimpleName()
+                    )
+            );
+            egrFieldData.setAccessLevel(EGRFieldAccess.READ_ONLY);
+        }
+        else {
+            egrFieldData.setAccessLevel(annotation.access());
+        }
+
+        // Field Name & Metadata Setup
+        if (annotation.fieldName().isEmpty()) {
+            egrFieldData.setFieldName(variable.getSimpleName().toString());
+        } else {
+            egrFieldData.setFieldName(annotation.fieldName());
+        }
+
+        egrFieldData.setFieldDescription(annotation.fieldDescription());
+
+        // Java View Configuration(s)
+        egrFieldData.setViewAddToModel(annotation.viewAddToModel());
+
+        // UI Model & Display Configuration(s)
+        egrFieldData.setUiAddToModel(annotation.uiAddToModel());
+        egrFieldData.setUiHide(annotation.uiHide());
+
+        return egrFieldData;
+    }
 }

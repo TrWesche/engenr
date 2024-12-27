@@ -9,9 +9,12 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.SOURCE)
-public @interface EGRColumn {
-    boolean viewEligible() default true;
-    boolean uiHideColumn() default false;
+public @interface EGRField {
+    String fieldName() default "";
+    String fieldDescription() default "";
+    boolean viewAddToModel() default true;
+    boolean uiAddToModel() default true;
+    boolean uiHide() default false;
 
     EGRFieldAccess access() default EGRFieldAccess.READ_ONLY;
 }
