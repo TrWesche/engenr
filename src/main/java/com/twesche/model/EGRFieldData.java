@@ -86,4 +86,17 @@ public class EGRFieldData implements Serializable {
     public void setUiHide(Boolean uiHide) {
         this.uiHide = uiHide;
     }
+
+    @Override
+    public String toString() {
+        return "EGRFieldData{" +
+                "Element=" + Element +
+                ", accessLevel=" + accessLevel +
+                ", fieldName='" + fieldName + '\'' +
+                ", fieldDescription='" + fieldDescription + '\'' +
+                ", viewAddToModel=" + viewAddToModel +
+                ", uiAddToModel=" + uiAddToModel +
+                ", uiHide=" + uiHide +
+                '}';
+    }
 }

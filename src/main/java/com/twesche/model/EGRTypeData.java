@@ -48,4 +48,14 @@ public class EGRTypeData implements Serializable {
     public void setGenerate(EnumSet<EGRGenerate> generate) {
         this.generate = generate;
     }
+
+    @Override
+    public String toString() {
+        return "EGRTypeData{" +
+                "type=" + type +
+                ", fields=" + fields +
+                ", access=" + access +
+                ", generate=" + generate +
+                '}';
+    }
 }

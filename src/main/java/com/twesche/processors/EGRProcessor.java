@@ -5,7 +5,9 @@ import com.twesche.annotation.EGRType;
 import com.twesche.enums.EGRFieldAccess;
 import com.twesche.enums.EGRGenerate;
 import com.twesche.enums.EGRTypeAccess;
+import com.twesche.generators.java.EGRViewGenerator;
 import com.twesche.model.EGRFieldData;
+import com.twesche.model.EGRGenerateStatus;
 import com.twesche.model.EGRTypeData;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -20,12 +22,15 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
-@SupportedAnnotationTypes("com.twesche.annotation.EGREntity")
+@SupportedAnnotationTypes("com.twesche.annotation.EGRType")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 public class EGRProcessor extends AbstractProcessor {
+    EGRViewGenerator egrViewGenerator = new EGRViewGenerator();
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         // Only will get called once - This process only supports annotation com.twesche.annotation.EGREntity
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "EGRProcessor Started");
         for (TypeElement annotation : annotations) // Loop of a single TypeElement
         {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, String.format("EGREntityProcessor Running for Annotation %s", annotation.getQualifiedName()));
@@ -45,7 +50,11 @@ public class EGRProcessor extends AbstractProcessor {
                 }
             }
 
-            System.out.println(egrTypeDataSet);
+            for (EGRTypeData instance : egrTypeDataSet) {
+                System.out.println(instance);
+                EGRGenerateStatus status = egrViewGenerator.generate(instance);
+                System.out.println(status);
+            }
         }
 
         return true;
@@ -61,64 +70,6 @@ public class EGRProcessor extends AbstractProcessor {
         }
         return typeElements;
     }
-
-//    private Map<TypeElement, EGRTypeProperties> getAnnotatedElements(Set<TypeElement> typeElements)
-//    {
-//        Map<TypeElement, EGRTypeProperties> typeElementSetMap = new HashMap<>();
-//
-//        for (TypeElement typeElement : typeElements) {
-//            EGRTypeProperties egrTypeProperties = categorizeByAnnotation(typeElement.getEnclosedElements());
-//            typeElementSetMap.put(typeElement, egrTypeProperties);
-//        }
-//
-//        return typeElementSetMap;
-//    }
-
-//    private EGRTypeProperties categorizeByAnnotation(List<? extends Element> elements) {
-//        Set<VariableElement> variableElements = new HashSet<>();
-//        Set<ExecutableElement> executableElements = new HashSet<>();
-//
-//        for (final Element element : elements)
-//        {
-//            if (element instanceof final VariableElement variableElement) {
-//                if (variableElement.getAnnotationsByType(EGRField.class).length != 0) {
-//                    if (variableElement.getKind() != ElementKind.FIELD) {
-//                        System.out.println("Unsupported Element Type for EGRColumn");
-//                        continue;
-//                    }
-//                    variableElements.add(variableElement);
-//                    System.out.println("\tVariable " + variableElement.getSimpleName() + " is annotated with " + EGRField.class.getName());
-//                }
-//                continue;
-//            }
-//
-//            if (element instanceof final ExecutableElement executableElement) {
-//                if (executableElement.getAnnotationsByType(EGRMethod.class).length != 0) {
-//                    if (executableElement.getKind() != ElementKind.METHOD) {
-//                        System.out.println("Unsupported Element Type for EGRMethod");
-//                        continue;
-//                    }
-//
-//                    executableElements.add(executableElement);
-//                    System.out.println("\tMethod " + executableElement.getSimpleName() + " is annotated with " + EGRMethod.class.getName());
-//                }
-//            }
-//        }
-//        return new EGRTypeProperties(
-//                variableElements,
-//                executableElements
-//        );
-//    }
-
-//    private static class EGRTypeProperties {
-//        Set<VariableElement> variableElements;
-//        Set<ExecutableElement> executableElements;
-//
-//        public EGRTypeProperties(Set<VariableElement> variableElements, Set<ExecutableElement> executableElements) {
-//            this.variableElements = variableElements;
-//            this.executableElements = executableElements;
-//        }
-//    }
 
     private EGRFieldData generateFieldData(VariableElement variable, TypeElement type) {
         // Check if field is annotated and is the proper type
